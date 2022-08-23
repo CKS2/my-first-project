@@ -1,0 +1,4 @@
+{
+  "typescript.suggest.completeJSDocs": false,
+  "editor.formatOnSave": true
+}

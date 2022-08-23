@@ -1,0 +1,58 @@
+service: walkthrough-cameron
+package:
+  individually: true
+frameworkVersion: "3.22.0"
+configValidationMode: error
+
+plugins:
+  - serverless-webpack
+
+custom:
+  webpack:
+    webpackConfig: ./webpack.config.js
+    includeModules: yes
+    # # Lambda has aws-sdk bundled. But not the latest version.
+    # # If you you want to use the bundled version, you can omit it from the build.
+    # includeModules:
+    #   forceExclude:
+    #     - aws-sdk
+    serializedCompile: true
+    packager: npm
+    # # Terraform's output can be written to a file and read from here
+    # # Enable this, if you need to transfer Terraform outputs to serverless
+    # terraform: ${file(./resources/terraform.json)}
+
+params:
+  default:
+    name: "unknown"
+  dev:
+    name: "development"
+  staging:
+    name: "staging"
+  uat:
+    name: "uat"
+  demo:
+    name: "demo"
+  prod:
+    name: "production"
+
+provider:
+  name: aws
+  deploymentBucket:
+    blockPublicAccess: true
+    skipPolicySetup: true
+    name: "serverless-deployment-${aws:accountId}-${aws:region}"
+
+  runtime: nodejs16.x
+  stage: ${env:STAGE, 'local'}
+  region: ${env:REGION, 'eu-central-1'}
+  # iam: ${file(./resources/serverless.iam.yml)}
+  endpointType: REGIONAL
+  stackTags:
+    Service: ${self:service}
+
+# functions:
+  # - ${file(./src/handlers//serverless.yml)}
+# Cloudformation resources can be defined directly using Cloudformation
+# resources:
+#   Resources: ${file(./resources/serverless.yml)}
